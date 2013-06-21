@@ -2,8 +2,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 --import Data.Typeable
+import System.Locale
 import Data.List
 import Data.List.Split
+import Data.Time
 --import Data.Typeable
 --import Data.String
 --import Data.Function.Predicate
@@ -44,8 +46,10 @@ convertLineListToString :: [Line] -> String
 convertLineListToString a = do
   let accountBlocks = splitOn [Account] a
   let accountTransactions = map convertAccountBlockToTransactions accountBlocks
-  show accountTransactions
+  foldr1 (++) $ map accountTransactionsToString accountTransactions
+  --show accountTransactions
   --show a
+
 
 type AccountBlock = [Line]
 convertAccountBlockToTransactions :: AccountBlock -> [Transaction]
@@ -75,6 +79,24 @@ data Transaction = Transaction { date :: String
   , account2 :: String
   , amount  :: String
   } deriving (Show)
+
+accountTransactionsToString :: [Transaction] -> String
+accountTransactionsToString list = foldr1 (++) $ map accountTransactionToString list
+accountTransactionToString :: Transaction -> String
+accountTransactionToString (Transaction "" _ _ _ _) = ""
+accountTransactionToString (Transaction d t acc1 "" a) =
+  accountTransactionToString Transaction { date = d,
+    title = t,
+    account1 = acc1,
+    account2 = "Unknown",
+    amount = a
+  }
+accountTransactionToString (Transaction d t acc1 acc2 a) = do
+  let timeFromString = readTime defaultTimeLocale "%-m/%-d/%y" d :: UTCTime
+  formatTime defaultTimeLocale "%Y/%m/%d" timeFromString ++ " " ++ t ++ "\n" ++ "    " ++ acc1 ++ "  " ++ a ++ "\n    " ++ "Expense or Income:" ++ acc2 ++ "\n\n"
+
+--stringListToString :: [String] -> String
+--stringListToString a = foldr (++) "" a
 
 type TransactionBlock = [Line]
 convertTransactionBlockToTransaction :: AccountHeader -> TransactionBlock -> Transaction
