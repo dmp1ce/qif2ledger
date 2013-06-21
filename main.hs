@@ -4,8 +4,8 @@
 --import Data.Typeable
 import Data.List
 import Data.List.Split
-import Data.Typeable
-import Data.String
+--import Data.Typeable
+--import Data.String
 --import Data.Function.Predicate
 
 main :: IO ()
@@ -47,24 +47,24 @@ convertLineListToString a = do
   show accountTransactions
   --show a
 
-
-
 type AccountBlock = [Line]
 convertAccountBlockToTransactions :: AccountBlock -> [Transaction]
 convertAccountBlockToTransactions a = do
   let transactionBlocks = splitOn [End] a
-  let accountHeader = AccountHeader {name = "Test Account Header",
-    account_type = "Test Type"
+  let accountName = a !! 0
+  let accountType' = a !! 2
+  let accountHeader = AccountHeader {name = lineToString accountName,
+    accountType = lineToString accountType'
   } 
   let transactions = map (convertTransactionBlockToTransaction accountHeader) transactionBlocks 
   transactions
 
 data AccountHeader = AccountHeader { name :: String,
-  account_type :: String
+  accountType :: String
 }
 
 showAccountHeaderName :: AccountHeader -> String
-showAccountHeaderName (AccountHeader name _) = name
+showAccountHeaderName (AccountHeader an _) = an
 
 data Transaction = Transaction { date :: String
   , title :: String
@@ -78,12 +78,15 @@ convertTransactionBlockToTransaction :: AccountHeader -> TransactionBlock -> Tra
 convertTransactionBlockToTransaction h a = do
   let maybeDate = find isTypeD a
   let maybePayee = find isTypeP a
+  let maybeMessage = find isTypeM a
   let maybeAmount = find isTypeT a
-  Transaction {date = lineToString maybeDate,
-    title = "Title",
+  let maybeLocation = find isTypeL a
+  -- Create the transaction from information collected
+  Transaction {date = maybeLineToString maybeDate,
+    title = maybeLineToString maybePayee ++ " - " ++ maybeLineToString maybeMessage,
     account1 = showAccountHeaderName h,
-    account2 = lineToString maybePayee,
-    amount = lineToString maybeAmount
+    account2 = maybeLineToString maybeLocation,
+    amount = maybeLineToString maybeAmount
     }
 
 -- Helper functions to find types
@@ -96,13 +99,27 @@ isTypeP (_) = False
 isTypeT :: Line -> Bool
 isTypeT (T _) = True
 isTypeT (_) = False
+isTypeM :: Line -> Bool
+isTypeM (M _) = True
+isTypeM (_) = False
+isTypeL :: Line -> Bool
+isTypeL (L _) = True
+isTypeL (_) = False
 
 -- Helper function to convert Line to string
-lineToString :: Maybe Line -> String
-lineToString (Just (D s)) = s
-lineToString (Just (P s)) = s
-lineToString (Just (T s)) = s
-lineToString (Nothing) = "Nothing"
+maybeLineToString :: Maybe Line -> String
+maybeLineToString (Just line) = lineToString line
+maybeLineToString (Nothing) = ""
+
+lineToString :: Line -> String
+lineToString (D s) = s
+lineToString (P s) = s
+lineToString (T s) = s
+lineToString (M s) = s
+lineToString (L s) = s
+lineToString (N s) = s
+lineToString a = "Unknown Line type: " ++ show a
+
 
 --splitLinesIntoAccountBlocks :: [Line] -> [AccountBlock]
 --splitLinesIntoAccountBlocks (beforeAccount : Account : afterAccount) =
@@ -111,11 +128,11 @@ lineToString (Nothing) = "Nothing"
 --  Account:afterAccount
 --  afterAccount
 
-type AccountType = String
-convertNextBlockToString :: AccountType -> [Line] -> String
-convertNextBlockToString accountName lines = do
-  let date = "Hello"
-  date
+--type AccountType = String
+--convertNextBlockToString :: AccountType -> [Line] -> String
+--convertNextBlockToString accountName lines = do
+--  let date = "Hello"
+--  date
 
 data Line = Type String | S String | End | Account | N String |
   D String | T String | M String | P String | L String |
