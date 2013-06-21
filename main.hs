@@ -51,7 +51,7 @@ type AccountBlock = [Line]
 convertAccountBlockToTransactions :: AccountBlock -> [Transaction]
 convertAccountBlockToTransactions a = do
   let transactionBlocks = splitOn [End] a
-  let accountName = a !! 0
+  let accountName = head a
   let accountType' = a !! 2
   let accountHeader = AccountHeader {name = lineToString accountName,
     accountType = lineToString accountType'
@@ -65,6 +65,9 @@ data AccountHeader = AccountHeader { name :: String,
 
 showAccountHeaderName :: AccountHeader -> String
 showAccountHeaderName (AccountHeader an _) = an
+
+showAccountHeaderType :: AccountHeader -> String
+showAccountHeaderType (AccountHeader _ at) = at
 
 data Transaction = Transaction { date :: String
   , title :: String
@@ -84,7 +87,7 @@ convertTransactionBlockToTransaction h a = do
   -- Create the transaction from information collected
   Transaction {date = maybeLineToString maybeDate,
     title = maybeLineToString maybePayee ++ " - " ++ maybeLineToString maybeMessage,
-    account1 = showAccountHeaderName h,
+    account1 = showAccountHeaderType h ++ ":" ++ showAccountHeaderName h,
     account2 = maybeLineToString maybeLocation,
     amount = maybeLineToString maybeAmount
     }
