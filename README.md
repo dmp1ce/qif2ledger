@@ -6,9 +6,9 @@ The purpose of the program is to convert a QIF file to a compatible ledger-cli f
 INSTALL
 -------
 
-`cabal-dev configure`
-`cabal-dev install`
-`cabal-dev build`
+- `cabal-dev configure`
+- `cabal-dev install`
+- `cabal-dev build`
 
 RUN
 ---
