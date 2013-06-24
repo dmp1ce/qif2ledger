@@ -93,7 +93,7 @@ accountTransactionToString (Transaction d t acc1 "" a) =
   }
 accountTransactionToString (Transaction d t acc1 acc2 a) = do
   let timeFromString = readTime defaultTimeLocale "%-m/%-d/%y" d :: UTCTime
-  formatTime defaultTimeLocale "%Y/%m/%d" timeFromString ++ " " ++ t ++ "\n" ++ "    " ++ acc1 ++ "  " ++ a ++ "\n    " ++ "Expense or Income:" ++ acc2 ++ "\n\n"
+  formatTime defaultTimeLocale "%Y/%m/%d" timeFromString ++ " " ++ t ++ "\n" ++ "    " ++ acc1 ++ "  $" ++ a ++ "\n    " ++ "Expense or Income:" ++ acc2 ++ "\n\n"
 
 --stringListToString :: [String] -> String
 --stringListToString a = foldr (++) "" a
